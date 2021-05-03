@@ -1,0 +1,130 @@
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
+
+<div id='map'></div>
+<div class='map-overlay' id='features'>
+    <h2>Pennsylvania<br>Covid Vaccinations</h2>
+    <h3>Rates per 100,000 people</h3>
+<div id='pd'><p>Hover over a county!</p></div></div>
+<div class='map-overlay' id='legend'></div>
+
+<style>
+    
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    h2,
+    h3 {
+      margin: 10px;
+      font-size: 1.2em;
+    }
+
+    h3 {
+      font-size: 1em;
+    }
+
+    p {
+      font-size: 0.85em;
+      margin: 10px;
+      text-align: left;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .map-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.8);
+      margin-right: 20px;
+      font-family: Arial, sans-serif;
+      overflow: auto;
+      border-radius: 3px;
+    }
+
+    #features {
+      top: 0;
+      height: 170px;
+      margin-top: 20px;
+      width: 250px;
+    }
+
+    #legend {
+      padding: 10px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      line-height: 18px;
+      height: 180px;
+      margin-bottom: 40px;
+      width: 130px;
+    }
+
+    .legend-key {
+      display: inline-block;
+      border-radius: 20%;
+      width: 10px;
+      height: 10px;
+      margin-right: 5px;
+    }
+    
+</style>
+
+<script>
+
+mapboxgl.accessToken = 'pk.eyJ1IjoiYXJpZWxha2lucyIsImEiOiJja21nZ2x1ODIwN2tjMnBwd2ZseXpmbWZzIn0.w74rDFDVqXLQI6WCc20oVQ';
+
+var map = new mapboxgl.Map({
+  container: 'map', // container id
+  style: 'mapbox://styles/arielakins/cknxwfd9a298b17qedv0jxj79' // replace this with your style URL
+}); 
+    
+map.on('load', function() {
+    var layers = ['0-15,000', '15,000-18,000', '18,000-21,000', '21,000-23,000', '23,000-25,000', '25,000-26,0000', '26,000-28,000', '28,000-30,000', '30,000+'];
+    var colors = ['#fafa6e', '#c4ec74', '#64c987', '#38b28c', '#08a091', '#009699', '#08717d', '#215d6e', '#294656'];
+    
+    for (i = 0; i < layers.length; i++) {
+  var layer = layers[i];
+  var color = colors[i];
+  var item = document.createElement('div');
+  var key = document.createElement('span');
+  key.className = 'legend-key';
+  key.style.backgroundColor = color;
+
+  var value = document.createElement('span');
+  value.innerHTML = layer;
+  item.appendChild(key);
+  item.appendChild(value);
+  legend.appendChild(item);
+}
+
+    
+    map.on('mousemove', function(e) {
+  var county = map.queryRenderedFeatures(e.point, {
+    layers: ['vaxrates']
+  });
+
+  if (county.length > 0) {
+    document.getElementById('pd').innerHTML = '<h3><strong>' + county[0].properties.COUNTY_NAM + '</strong></h3><p><strong><em>' + county[0].properties.covidvax_FullRate + '</strong> vaccinations per 100,000 people</em></p>';
+  } else {
+    document.getElementById('pd').innerHTML = '<p>Hover over a county!</p>';
+  }
+});
+    
+    map.getCanvas().style.cursor = 'default';
+    
+    map.fitBounds([40.9301152059, -77.2998046875]);
+    
+    
+    
+});
+    
+
+
+
+</script>

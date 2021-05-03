@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>PA Covid</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: whitesmoke;
+            font-family: Lato, sans-serif;
+            color: #0D0000;
+        }
+        header {
+            padding: 6px 10%;
+        }
+        h1 {
+            display: inline-block;
+            margin-right: 20px;
+            color: #001323;
+        }
+        h2 {
+            display: inline-block;
+            color: #001323;
+        }
+        #map {
+            width: 80%;
+            height: 700px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+        p {
+            font-size: 1em;
+            color: #001323;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Coronavirus Cases and Deaths</h1>
+        <h2>By Pennsylvania County</h2>
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+        <p>Map authored by Ariel Akins</p>
+        <p>Pennsylvania rates of Covid-19 cases and deaths by county. These rates are the average rates based on the total number of cases and deaths since the beginning of the pandemic.</p><br><br>
+    </footer>
+
+    <script src="covidcount1.js"></script>
+    <script src="deathcount.js"></script>
+    <script src="PaCounty2020_01.geojson"></script>
+    <script>
+
+      var map = L.map('map',  { 
+          center: [40.9301152059, -77.2998046875],
+          zoom: 7.5
+      });
+
+        var tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	subdomains: 'abcd',
+	maxZoom: 19
+}); 
+        
+        tiles.addTo(map); 
+        
+         var myStyle = {
+            "color": "#ffffff",
+            "weight": 1,
+            "opacity": .2,
+            "fillColor": "ffffff",
+            "fillOpacity": 0,
+        };
+
+        L.geoJSON(counties, {
+            style: myStyle
+        }).addTo(map);
+
+      
+  cases.features.sort(function(a, b) {
+   return b.properties.cases_cume - a.properties.cases_cume;
+});
+    
+        
+      var casecount = L.geoJson(cases, {
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties)
+              return L.circleMarker(latlng, {
+                 fillColor: '#63b7ec', 
+                 fillOpacity: .6,
+                 color: '#4089DD',
+                 weight: 0,
+                radius: getRadius(feature.properties.cases_cume) 
+              });   
+          },
+          
+
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: '#D7FF7A',
+        fillOpacity: 1,
+        color: '#95BA41',
+        weight: 0
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: '#63b7ec', //'#6495ED',
+        fillOpacity: .6,
+        color: '#4089DD',
+        weight: 0
+    });
+});
+         
+          var name = feature.properties.county
+          var rate = (feature.properties.cases_cume_rate.toLocaleString()) / 1000
+          var total = feature.properties.cases_cume.toLocaleString()
+      
+  
+          var popup = ("<p style='color:#4089DD '><b>County:  "+name+"</b><br>Total cases: "+total + "<br> "+rate.toFixed(2) + "% average positivity rate")
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+        
+   deaths1.features.sort(function(a, b) {
+   return b.properties.deaths_cume - a.properties.deaths_cume;
+});
+       
+        
+    var deathcount = L.geoJson(deaths1, {
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties)
+              return L.circleMarker(latlng, {
+                 fillColor: '#ff8e7a',
+                 fillOpacity: 1,
+                 color: '#d15443',
+                 weight: 1,
+                 radius: deathRadius(feature.properties.deaths_cume) 
+              });   
+          },
+
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: '#D7FF7A',
+        fillOpacity: 1,
+        color: '#95BA41',
+        weight: 0
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: '#ff8e7a',
+        fillOpacity: 1,
+        color: '#d15443',
+        weight: 1
+    });
+});
+        
+          
+          var name = feature.properties.county
+          var rate = feature.properties.deaths_cume_rate.toLocaleString()
+          var total = feature.properties.deaths_cume
+                                    
+          
+          var popup = ("<p style='color:#B03A2E '><b>County: "+name+"</b><br>"
+                +"Total Deaths: "+total + "<br>"
+              +rate+ " deaths per 100,000 people" +"<br>")
+                       layer.bindPopup(popup)
+          }  
+          
+          
+      }).addTo(map); 
+        
+    
+        function getRadius(area){
+        var radius = Math.sqrt(area/Math.PI);
+        return radius / 3;   
+    }
+        
+        function deathRadius(area){
+        var radius = Math.sqrt(area/Math.PI);
+        return radius / 2;   
+    }
+        
+        
+        var sourcesLayer = {"<b style='color:#4089DD '>Total Cases</b>": casecount, "<b style='color:#d15443 '>Total Deaths</b>": deathcount}
+        
+        L.control.layers(null, sourcesLayer, { collapsed:false }).addTo(map);
+          
+    </script>
+    
+</body>
+
+</html>

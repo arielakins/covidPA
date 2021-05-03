@@ -1,0 +1,87 @@
+  <html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        
+        
+      google.charts.load('current', {'packages': ['line', 'corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+
+        var chartDiv = document.getElementById('chart_div');
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('date', 'Month');
+        data.addColumn('number', "Cases");
+        data.addColumn('number', "Deaths");
+          
+
+        data.addRows([
+          [new Date(2020, 2), 0, 0],
+          [new Date(2020, 3), 7200, 112],
+          [new Date(2020, 4), 48577, 3610],
+          [new Date(2020, 5), 73137, 6172],
+          [new Date(2020, 6), 88499, 6950],
+          [new Date(2020, 7), 114376, 7419],
+          [new Date(2020, 8), 136962, 7910],
+          [new Date(2020, 9), 162644, 8322],
+          [new Date(2020, 10), 213952, 9027],
+          [new Date(2020, 11), 379266, 11637],
+          [new Date(2021, 0), 659545, 18056],
+          [new Date(2021, 1), 852713, 22638],
+          [new Date(2021, 2), 936667, 24407],
+          [new Date(2021, 3), 1034729, 25332],
+          [new Date(2021, 4), 1156758, 26276]
+        ]);
+
+        var classicOptions = {
+          title: 'Pennsylvania Statewide COVID Cases and Fatalities',
+          width: 1500,
+          height: 1000,
+          series: {
+            0: {
+              targetAxisIndex: 0
+            },
+            1: {
+              targetAxisIndex: 1
+            }
+          },
+          vAxes: {
+            0: {
+              title: 'Cases'
+            },
+            1: {
+              title: 'Deaths',
+            }
+          },
+          hAxis: {
+              format: {format:'MMM d, y'},
+            ticks: [new Date(2020, 2), new Date(2020, 3), new Date(2020, 4), new Date(2020, 5), new Date(2020, 6),
+              new Date(2020, 7), new Date(2020, 8), new Date(2020, 9), new Date(2020, 10),
+              new Date(2020, 11), new Date(2020, 12), new Date(2021, 0), new Date(2021, 1), new Date(2021, 2), new Date(2021, 3), new Date(2021, 4)
+            ]
+          },
+          vAxis: {
+            viewWindow: {
+              0: {max: 1200000},
+              1: {max: 30000}
+            }
+          }
+        };
+
+
+        function drawClassicChart() {
+          var classicChart = new google.visualization.LineChart(chartDiv);
+          classicChart.draw(data, classicOptions);
+        }
+
+        drawClassicChart();
+
+      }
+    </script>
+  </head>
+  <body>
+    <div id="chart_div" style="width: 1500px; height: 1000px"></div>
+  </body>
+</html>
